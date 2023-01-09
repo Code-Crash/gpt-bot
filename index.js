@@ -34,6 +34,23 @@ app.post('/chat', async (req, res) => {
     }
 });
 
+app.post('/chat', async (req, res) => {
+    try {
+        let prompt = '';
+        if (req.body && req.body && req.body.command && req.body.command === '/askmeanzipy') {
+            console.log(`Sarcastic Mode Selected!`);
+            prompt = `Need Sarcastic Answers, ${req.body.text}`;
+        } else {
+            prompt = `${req.body.text}`
+        }
+        res.status(200).send();
+        await chat.ask({ prompt, response_url: req.body.response_url });
+        // res.status(200).send(data);
+    } catch (error) {
+        res.status(500).send(error);
+    }
+});
+
 
 
 const PORT = process.env.PORT || 4000;

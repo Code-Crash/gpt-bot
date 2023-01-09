@@ -34,7 +34,7 @@ const ask = ({ prompt, response_url }) => {
                     // prompt: "What time is it? with timezone IST?",
                     // prompt: "Q: What is human life expectancy in the United States?",
                     // prompt: "Which party did he belong to?",
-                    prompt: `Need Sarcastic Answers, ${prompt}`,
+                    prompt: `${prompt}`,
                     temperature: 0,
                     max_tokens: 100,
                     top_p: 1,
