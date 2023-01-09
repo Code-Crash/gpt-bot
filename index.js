@@ -5,7 +5,7 @@ const app = express();
 const bodyParser = require('body-parser');
 const chat = require('./chat');
 
-console.log('ENV:', process.env);
+console.log('ENV:', process.env.PORT, process.env.OPENAI_API_KEY);
 
 app.use(bodyParser.urlencoded({
     extended: true

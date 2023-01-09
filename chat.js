@@ -11,6 +11,7 @@ const openai = new OpenAIApi(configuration);
  */
 const ask = ({ prompt }) => {
     return new Promise(async (resolve, reject) => {
+        console.log('OPENAI_API_KEY:', process.env.OPENAI_API_KEY);
         try {
             let response = null;
             if (prompt) {
