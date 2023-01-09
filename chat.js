@@ -1,3 +1,4 @@
+const axios = require('axios');
 const { Configuration, OpenAIApi } = require("openai");
 const configuration = new Configuration({
     apiKey: process.env.OPENAI_API_KEY,
@@ -9,9 +10,9 @@ const openai = new OpenAIApi(configuration);
  * @param {Object} {prompt}
  * @returns 
  */
-const ask = ({ prompt }) => {
+const ask = ({ prompt, response_url }) => {
+    console.log('ask:', 'prompt:', prompt, 'response_url:', response_url);
     return new Promise(async (resolve, reject) => {
-        console.log('OPENAI_API_KEY:', process.env.OPENAI_API_KEY);
         try {
             let response = null;
             if (prompt) {
@@ -48,18 +49,21 @@ const ask = ({ prompt }) => {
                     // presence_penalty: 0.0,
                     // stop: ["\n"],
                 });
-                console.log('response:', 'NAAAA');
             }
-            let result = null; 
+            let result = null;
             if (response && response.data && response.data.choices && response.data.choices.length) {
-                console.log('response:', response && response.data ? response.data : 'NA');
                 result = response.data.choices[0].text;
+                console.log('ask result:', result, '\n\n\n');
+                axios({
+                    method: 'POST',
+                    url: `${response_url}`,
+                    data: result
+                });
             }
-            
-            resolve(result);
+            // resolve(result);
         } catch (error) {
-            console.log('Error: ', error.data, error.message);
-            reject(error.message);
+            console.log('ask error: ', error.data, error.message);
+            // reject(error.message);
         }
     });
 }
