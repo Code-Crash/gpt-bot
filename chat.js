@@ -54,11 +54,12 @@ const ask = ({ prompt, response_url }) => {
             if (response && response.data && response.data.choices && response.data.choices.length) {
                 result = response.data.choices[0].text;
                 console.log('ask result:', result, '\n\n\n');
-                axios({
+                const res = await axios({
                     method: 'POST',
                     url: `${response_url}`,
                     data: { text: result }
                 });
+                console.log('axios res:', res && res.status);
             }
             // resolve(result);
         } catch (error) {
