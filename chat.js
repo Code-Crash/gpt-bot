@@ -10,11 +10,19 @@ const openai = new OpenAIApi(configuration);
  * @param {Object} {prompt}
  * @returns 
  */
-const ask = ({ prompt, response_url }) => {
+const ask = ({ prompt, response_url, command }) => {
     console.log(' ask:', 'prompt:', prompt, ' response_url:', response_url, ' engine:', process.env.CHAT_GPT_ENGINE);
     return new Promise(async (resolve, reject) => {
         try {
             let response = null;
+            let prompt = '';
+            console.log('command:', command, typeof command, command === '/askmeanzipy');
+            if (req.body && req.body && req.body.command && req.body.command === '/askmeanzipy') {
+                console.log(`Sarcastic Mode Selected!`);
+                prompt = `Need Sarcastic Answers, ${req.body.text}`;
+            } else {
+                prompt = `${req.body.text}`
+            }
             if (prompt) {
 
                 // response = await openai.createCompletion({

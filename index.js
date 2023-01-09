@@ -36,17 +36,9 @@ app.post('/chat', async (req, res) => {
 
 app.post('/chat', async (req, res) => {
     try {
-        let prompt = '';
-        let command = req.body && req.body.command ? req.body.command : '';
-        console.log('command:', command, typeof command, command === '/askmeanzipy');
-        if (req.body && req.body && req.body.command && req.body.command === '/askmeanzipy') {
-            console.log(`Sarcastic Mode Selected!`);
-            prompt = `Need Sarcastic Answers, ${req.body.text}`;
-        } else {
-            prompt = `${req.body.text}`
-        }
+        console.log('Request Received!');
         res.status(200).send();
-        await chat.ask({ prompt, response_url: req.body.response_url });
+        await chat.ask({ prompt, response_url: req.body.response_url, command: req.body.command });
         // res.status(200).send(data);
     } catch (error) {
         res.status(500).send(error);
