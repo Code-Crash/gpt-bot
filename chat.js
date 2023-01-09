@@ -57,7 +57,7 @@ const ask = ({ prompt, response_url }) => {
                 axios({
                     method: 'POST',
                     url: `${response_url}`,
-                    data: result
+                    data: { text: result }
                 });
             }
             // resolve(result);
