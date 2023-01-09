@@ -5,6 +5,8 @@ const app = express();
 const bodyParser = require('body-parser');
 const chat = require('./chat');
 
+console.log('ENV:', process.env);
+
 app.use(bodyParser.urlencoded({
     extended: true
 }));

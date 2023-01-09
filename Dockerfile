@@ -7,7 +7,7 @@ FROM node:16.16.0
 USER node
 
 # Bind to all network interfaces so that it can be mapped to the host OS
-ENV PORT=4000 _WORKDIR_=/home/node/app OPENAI_API_KEY=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
+ENV PORT=4000 _WORKDIR_=/home/node/app
 # Create app directory (with user `node`)
 RUN mkdir -p $_WORKDIR_
 WORKDIR $_WORKDIR_
