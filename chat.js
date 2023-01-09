@@ -11,7 +11,7 @@ const openai = new OpenAIApi(configuration);
  * @returns 
  */
 const ask = ({ prompt, response_url }) => {
-    console.log('ask:', 'prompt:', prompt, 'response_url:', response_url);
+    console.log(' ask:', 'prompt:', prompt, ' response_url:', response_url, ' engine:', process.env.CHAT_GPT_ENGINE);
     return new Promise(async (resolve, reject) => {
         try {
             let response = null;
@@ -28,7 +28,7 @@ const ask = ({ prompt, response_url }) => {
                 // });
 
                 response = await openai.createCompletion({
-                    model: "text-davinci-003",
+                    model: process.env.CHAT_GPT_ENGINE,
                     // prompt: "What is ChatGPT?",
                     // prompt: "Write a code for addition?",
                     // prompt: "What time is it? with timezone IST?",
