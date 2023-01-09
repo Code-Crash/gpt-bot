@@ -25,17 +25,6 @@ app.get('/', (req, res) => {
 
 app.post('/chat', async (req, res) => {
     try {
-        // await chat
-        res.status(200).send();
-        await chat.ask({ prompt: req.body.text || '', response_url: req.body.response_url });
-        // res.status(200).send(data);
-    } catch (error) {
-        res.status(500).send(error);
-    }
-});
-
-app.post('/chat', async (req, res) => {
-    try {
         console.log('Request Received!');
         res.status(200).send();
         await chat.ask({ prompt, response_url: req.body.response_url, command: req.body.command });

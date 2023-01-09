@@ -15,13 +15,12 @@ const ask = ({ prompt, response_url, command }) => {
     return new Promise(async (resolve, reject) => {
         try {
             let response = null;
-            let prompt = '';
             console.log('command:', command, typeof command, command === '/askmeanzipy');
-            if (req.body && req.body && req.body.command && req.body.command === '/askmeanzipy') {
+            if (command && command === '/askmeanzipy') {
                 console.log(`Sarcastic Mode Selected!`);
-                prompt = `Need Sarcastic Answers, ${req.body.text}`;
+                prompt = `Need Sarcastic Answers, ${prompt}`;
             } else {
-                prompt = `${req.body.text}`
+                prompt = `${prompt}`
             }
             if (prompt) {
 
