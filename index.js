@@ -37,7 +37,8 @@ app.post('/chat', async (req, res) => {
 app.post('/chat', async (req, res) => {
     try {
         let prompt = '';
-        console.log('req.body.command:', req.body.command, typeof req.body.command, req.body.command === '/askmeanzipy');
+        let command = req.body && req.body.command ? req.body.command : '';
+        console.log('command:', command, typeof command, command === '/askmeanzipy');
         if (req.body && req.body && req.body.command && req.body.command === '/askmeanzipy') {
             console.log(`Sarcastic Mode Selected!`);
             prompt = `Need Sarcastic Answers, ${req.body.text}`;
