@@ -1,6 +1,7 @@
 const axios = require('axios');
 const { Configuration, OpenAIApi } = require("openai");
 const Logger = require('./logger');
+const { SLACK_FORMATTER, COMMANDS, STRING_CONSTANTS, METHODS } = require('./constants');
 const configuration = new Configuration({
     apiKey: process.env.OPENAI_API_KEY,
 });
@@ -15,16 +16,16 @@ const getSlackBlock = ({ command, query, result, user_name }) => {
     return {
         blocks: [
             {
-                type: 'section',
+                type: SLACK_FORMATTER.SECTION,
                 text: {
-                    type: 'mrkdwn',
+                    type: SLACK_FORMATTER.MARKDOWN,
                     text: `<@${user_name}>:> *${query}*`,
                 }
             },
             {
-                type: 'section',
+                type: SLACK_FORMATTER.SECTION,
                 text: {
-                    type: 'mrkdwn',
+                    type: SLACK_FORMATTER.MARKDOWN,
                     text: `:robot_face: \`${command}:>\`\n${result}`,
                 }
             },
@@ -42,10 +43,9 @@ const ask = async ({ prompt, response_url, command, user_name, user_id }) => {
     try {
         let response = null;
         let query = prompt;
-        Logger.info('command:', command, typeof command, command === '/askmeanzipy');
-        if (command && command === '/askmeanzipy') {
-            Logger.info(`Sarcastic Mode Activated!`);
-            prompt = `Need Sarcastic Answers.\n${prompt}`;
+        if (command && command === COMMANDS.ASK_MEAN_ZIPY) {
+            Logger.info(STRING_CONSTANTS.sarcastic);
+            prompt = `${STRING_CONSTANTS.mean_prompt_prefix}${prompt}`;
         } else {
             prompt = `${prompt}`
         }
@@ -66,7 +66,7 @@ const ask = async ({ prompt, response_url, command, user_name, user_id }) => {
         let result = '';
         if (response && response.data && response.data.choices && response.data.choices.length) {
             Logger.info('Got the response from ChatGPT!');
-            Logger.info('response.data.choices:', response.data.choices, ' length:', choices.length);
+            Logger.info('response.data:', response.data, ' length:', response.data.choices.length);
             let choices = response.data.choices;
             for (let i = 0; i < choices.length; i++) {
                 if (choices[i] && choices[i].text) {
@@ -75,7 +75,7 @@ const ask = async ({ prompt, response_url, command, user_name, user_id }) => {
             }
             const data = getSlackBlock({ command, query, result, user_name });
             axios({
-                method: 'POST',
+                method: METHODS.post,
                 url: `${response_url}`,
                 data: data,
             }).then((_response) => {
