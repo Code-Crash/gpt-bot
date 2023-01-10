@@ -1,79 +1,94 @@
 const axios = require('axios');
 const { Configuration, OpenAIApi } = require("openai");
+const Logger = require('./logger');
 const configuration = new Configuration({
     apiKey: process.env.OPENAI_API_KEY,
 });
 const openai = new OpenAIApi(configuration);
 
 /**
+ * This method returns the slack friendly formatted response
+ * @param {*} param0 
+ * @returns 
+ */
+const getSlackBlock = ({ command, query, result, user_name }) => {
+    return {
+        blocks: [
+            {
+                type: 'section',
+                text: {
+                    type: 'mrkdwn',
+                    text: `<@${user_name}>:> *${query}*`,
+                }
+            },
+            {
+                type: 'section',
+                text: {
+                    type: 'mrkdwn',
+                    text: `:robot_face: \`${command}:>\`\n${result}`,
+                }
+            },
+        ]
+    };
+};
+
+/**
  * 
  * @param {Object} {prompt}
  * @returns 
  */
-const ask = ({ prompt, response_url, command }) => {
-    console.log(' ask:', 'prompt:', prompt, ' response_url:', response_url, ' engine:', process.env.CHAT_GPT_ENGINE);
-    return new Promise(async (resolve, reject) => {
-        try {
-            let response = null;
-            console.log('command:', command, typeof command, command === '/askmeanzipy');
-            if (command && command === '/askmeanzipy') {
-                console.log(`Sarcastic Mode Selected!`);
-                prompt = `Need Sarcastic Answers, ${prompt}`;
-            } else {
-                prompt = `${prompt}`
-            }
-            if (prompt) {
-
-                // response = await openai.createCompletion({
-                //     model: "text-davinci-003",
-                //     prompt: "What time is it?",
-                //     temperature: 0.5,
-                //     max_tokens: 60,
-                //     top_p: 0.3,
-                //     frequency_penalty: 0.5,
-                //     presence_penalty: 0.0,
-                // });
-
-                response = await openai.createCompletion({
-                    model: process.env.CHAT_GPT_ENGINE,
-                    // prompt: "What is ChatGPT?",
-                    // prompt: "Write a code for addition?",
-                    // prompt: "What time is it? with timezone IST?",
-                    // prompt: "Q: What is human life expectancy in the United States?",
-                    // prompt: "Which party did he belong to?",
-                    prompt: `${prompt}`,
-                    temperature: 0,
-                    max_tokens: 100,
-                    top_p: 1,
-                    frequency_penalty: 0.0,
-                    presence_penalty: 0.0,
-                    // stop: ["\n"],
-
-                    // temperature: 0.5,
-                    // max_tokens: 60,
-                    // top_p: 0.3,
-                    // frequency_penalty: 0.5,
-                    // presence_penalty: 0.0,
-                    // stop: ["\n"],
-                });
-            }
-            let result = null;
-            if (response && response.data && response.data.choices && response.data.choices.length) {
-                result = response.data.choices[0].text;
-                console.log('ask result:', result, '\n\n\n');
-                const res = await axios({
-                    method: 'POST',
-                    url: `${response_url}`,
-                    data: { text: result }
-                });
-                console.log('axios res:', res && res.status);
-            }
-            // resolve(result);
-        } catch (error) {
-            console.log('ask error: ', error.data, error.message);
-            // reject(error.message);
+const ask = async ({ prompt, response_url, command, user_name, user_id }) => {
+    Logger.info(' ask:', 'prompt:', prompt, ' response_url:', response_url, ' engine:', process.env.CHAT_GPT_ENGINE);
+    try {
+        let response = null;
+        let query = prompt;
+        Logger.info('command:', command, typeof command, command === '/askmeanzipy');
+        if (command && command === '/askmeanzipy') {
+            Logger.info(`Sarcastic Mode Activated!`);
+            prompt = `Need Sarcastic Answers.\n${prompt}`;
+        } else {
+            prompt = `${prompt}`
         }
-    });
+        if (prompt) {
+            response = await openai.createCompletion({
+                model: process.env.CHAT_GPT_ENGINE,
+                prompt: `${prompt}`,
+                temperature: 0.5,
+                max_tokens: 1000,
+                top_p: 1,
+                frequency_penalty: 0.5,
+                presence_penalty: 0.0,
+                // echo: true,
+                // stream: true,
+                // stop: ["\n"],
+            });
+        }
+        let result = '';
+        if (response && response.data && response.data.choices && response.data.choices.length) {
+            Logger.info('Got the response from ChatGPT!');
+            Logger.info('response.data.choices:', response.data.choices, ' length:', choices.length);
+            let choices = response.data.choices;
+            for (let i = 0; i < choices.length; i++) {
+                if (choices[i] && choices[i].text) {
+                    result += choices[i].text;
+                }
+            }
+            const data = getSlackBlock({ command, query, result, user_name });
+            axios({
+                method: 'POST',
+                url: `${response_url}`,
+                data: data,
+            }).then((_response) => {
+                // Logger.info('AXIOS:', _response.data);
+            }).catch((error) => {
+                Logger.error('AXIOS ERROR:', error);
+            });
+        }
+        // resolve(result);
+    } catch (error) {
+        Logger.error('ask error: ', error.data, error.message, error.stack);
+        // reject(error.message);
+    }
 }
 
 const chat = {
